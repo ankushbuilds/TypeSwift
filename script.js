@@ -5,6 +5,35 @@ let totalSeconds = 30;
 let intervalId = null;
 let isTimerRunning = false;
 let timeElasped = 0; // Track time used
+let audioContext = null;
+
+// Initialize audio context on first user interaction
+const initAudioContext = () => {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+};
+
+// Function to play beep sound
+const playBeep = (frequency = 800, duration = 200) => {
+    if (!audioContext) initAudioContext();
+    
+    const now = audioContext.currentTime;
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration / 1000);
+    
+    oscillator.start(now);
+    oscillator.stop(now + duration / 1000);
+};
 
 
 const paragraphs = [
@@ -57,7 +86,8 @@ const startTimer = () => {
     if (isTimerRunning || intervalId) return;
 
     isTimerRunning = true;
-    countDownElement.innerText = formatTime(totalSeconds);
+    const countdownEl = document.querySelector(".countdown");
+    countdownEl.innerHTML = `<span class='timer-label'>⏱️ Time</span><span class='timer-value'>${formatTime(totalSeconds)}</span>`;
 
     intervalId = setInterval(() => {
         totalSeconds--;
@@ -70,7 +100,16 @@ const startTimer = () => {
             return;
         }
 
-        countDownElement.innerText = formatTime(totalSeconds);
+        countdownEl.innerHTML = `<span class='timer-label'>⏱️ Time</span><span class='timer-value'>${formatTime(totalSeconds)}</span>`;
+        
+        // Toggle warning style when below 10 seconds
+        if (totalSeconds < 5) {
+            countdownEl.parentElement.classList.add("timer-warning");
+            // Play beep sound
+            playBeep(800, 150);
+        } else {
+            countdownEl.parentElement.classList.remove("timer-warning");
+        }
     }, 1000);
 };
 
@@ -100,10 +139,28 @@ const calculateResults = () => {
         ? ((correctChars / totalCharsTyped) * 100).toFixed(2)
         : 0;
 
-    // Show results on screen
-    document.querySelector(".status").innerText = "⏰ Time's Up!";
-    document.querySelector(".wpm").innerText = `WPM: ${wpm}`;
-    document.querySelector(".accuracy").innerText = `Accuracy: ${accuracy}%`;
+    // Show results on screen with dynamic styling
+    const statusEl = document.querySelector(".status");
+    const wpmEl = document.querySelector(".wpm");
+    const accuracyEl = document.querySelector(".accuracy");
+    
+    statusEl.innerHTML = "<span class='status-icon'>⏰</span> Time's Up!";
+    wpmEl.innerHTML = `<span class='result-label'>💨 WPM</span><span class='result-value'>${wpm}</span>`;
+    accuracyEl.innerHTML = `<span class='result-label'>🎯 Accuracy</span><span class='result-value'>${accuracy}%</span>`;
+    
+    // Add animation classes
+    statusEl.classList.add("show-results");
+    wpmEl.classList.add("show-results");
+    accuracyEl.classList.add("show-results");
+    
+    // Play three beeps to signal time's up
+    playBeep(1200, 100);
+    setTimeout(() => playBeep(1200, 100), 150);
+    setTimeout(() => playBeep(1200, 150), 300);
+    
+    // Stagger animations
+    setTimeout(() => wpmEl.classList.add("show-results-delay1"), 300);
+    setTimeout(() => accuracyEl.classList.add("show-results-delay2"), 600);
 
     document.getElementById("typing-para").disabled = true;
 
@@ -150,20 +207,38 @@ const resetAll = async () => {
     timeElasped = 0;
     isTimerRunning = false;
 
-    countDownElement.innerText = formatTime(totalSeconds);
+    const countdownEl = document.querySelector(".countdown");
+    countdownEl.innerHTML = `<span class='timer-label'>⏱️ Time</span><span class='timer-value'>${formatTime(totalSeconds)}</span>`;
+    document.querySelector(".timer").classList.remove("timer-warning");
 
     document.getElementById("typing-para").value = "";
     document.getElementById("typing-para").disabled = false;
 
-    document.querySelector(".status").innerText = "";
-    document.querySelector(".wpm").innerText = "";
-    document.querySelector(".accuracy").innerText = "";
+    const statusEl = document.querySelector(".status");
+    const wpmEl = document.querySelector(".wpm");
+    const accuracyEl = document.querySelector(".accuracy");
+    
+    statusEl.innerText = "";
+    wpmEl.innerText = "";
+    accuracyEl.innerText = "";
+    
+    // Remove animation classes
+    statusEl.classList.remove("show-results");
+    wpmEl.classList.remove("show-results", "show-results-delay1");
+    accuracyEl.classList.remove("show-results", "show-results-delay2");
+    
+    // Show Stop button
+    document.querySelector(".stop-btn").style.display = "inline-block";
+    document.querySelector(".continue-btn").style.display = "none";
 
     await getRandomPara();
 };
 const inputField = document.getElementById("typing-para");
 
 inputField.addEventListener("input", () => {
+    
+    // Initialize audio context on first interaction
+    initAudioContext();
 
     startTimer();
 
