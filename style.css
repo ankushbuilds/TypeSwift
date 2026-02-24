@@ -189,6 +189,31 @@ button {
     left: 125%;
 }
 
+.continue-btn {
+    background: linear-gradient(135deg, #1e90ff, #3aa0ff);
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(30, 144, 255, 0.4);
+}
+.continue-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(30, 144, 255, 0.6);
+}
+.continue-btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: skewX(-25deg);
+    transition: 0.5s;
+    z-index: 0;
+}
+.continue-btn:hover::after {
+    left: 125%;
+}
+
 @media (max-width: 1024px) {
     .random-para {
         font-size: 24px;

@@ -7,6 +7,19 @@ let isTimerRunning = false;
 let timeElasped = 0; // Track time used
 
 
+const paragraphs = [
+    "Every morning, Mia walks to school with her best friend. They talk about their favorite games and laugh at silly jokes. After school, they like to sit under a big tree and share snacks. It is their favorite time of the day.",
+    "The sun was shining brightly in the clear blue sky. Children were playing in the park, laughing and running around happily. A gentle breeze moved the leaves on the trees, making a soft rustling sound.",
+    "Typing is an important skill to learn. It helps us finish our work faster and more easily. When we practice every day, our fingers become quicker. Good typing also helps us avoid mistakes.",
+    "Fast typing saves time in school and at work. It allows us to write emails and documents quickly. With patience and daily practice, anyone can become a good typist.",
+    "Virat Kohli is a famous cricket player from India. He was born on November 5, 1988. He is known for his strong batting and hard work. Many people enjoy watching him play. He is also very fit and practices every day to improve his game.",
+    "Rohit Sharma is a famous cricket player from India. He is known for his calm nature and excellent batting skills. He has scored many centuries in international cricket. Many fans love to watch him play because he hits beautiful shots.",
+    "MS Dhoni is a famous cricket player from India. He is known for his calm mind and smart captaincy. He was the captain of the Indian cricket team and won many important matches. Many fans admire him for his leadership and finishing skills.",
+    "India is a large and beautiful country in South Asia. It is known for its rich history and diverse culture. The capital city of India is New Delhi. Many different languages are spoken in the country.",
+    "Maharana Pratap was a brave king of Mewar. He is known for his courage and love for his land. He fought against the Mughal emperor to protect his kingdom. His loyal horse, Chetak, is also remembered in history.",
+    "A keyboard is a device used to type letters, numbers, and symbols on a computer. It has many keys that help us write and control the computer. There are different types of keyboards, like mechanical, wireless, and laptop keyboards."
+];
+
 // Function to load paragraph into the DOM with each character wrapped in a span
 const paraContainer = document.querySelector(".random-para");
 
@@ -25,16 +38,17 @@ const loadParagraph = (text) => {
     });
 };
 
-// Function to fetch a random paragraph and display it
+// Function to get a random paragraph from local array and display it
 const getRandomPara = async () => {
-    const paraUrl = "http://metaphorpsum.com/paragraphs/1/3";
     try {
-        const response = await fetch(paraUrl);
-        const data = await response.text();
-        loadParagraph(data);
+        const randomIndex = Math.floor(Math.random() * paragraphs.length);
+        const randomParagraph = paragraphs[randomIndex];
+        loadParagraph(randomParagraph);
     }
     catch (error) {
-        console.error("Error fetching paragraph:", error);
+        console.error("Error loading paragraph:", error);
+        // Fallback text if something goes wrong
+        loadParagraph("The quick brown fox jumps over the lazy dog.");
     }
 };
 
@@ -111,6 +125,20 @@ const stopTimer = () => {
     clearInterval(intervalId);
     intervalId = null;
     isTimerRunning = false;
+    
+    // Show continue button and hide stop button
+    document.querySelector(".stop-btn").style.display = "none";
+    document.querySelector(".continue-btn").style.display = "inline-block";
+};
+
+// Continue timer function
+const continueTimer = () => {
+    // Hide continue button and show stop button
+    document.querySelector(".continue-btn").style.display = "none";
+    document.querySelector(".stop-btn").style.display = "inline-block";
+    
+    // Resume the timer
+    startTimer();
 };
 
 // Reset All function
@@ -180,6 +208,9 @@ document.getElementById("typing-para").addEventListener("input", startTimer);
 
 // Stop button
 document.querySelector(".stop-btn").addEventListener("click", stopTimer);
+
+// Continue button
+document.querySelector(".continue-btn").addEventListener("click", continueTimer);
 
 // Reset button
 document.querySelector(".reset-btn").addEventListener("click", resetAll);
