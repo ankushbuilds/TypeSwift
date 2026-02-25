@@ -93,7 +93,7 @@ h1:hover i {
     width: 90%;
     height: 300px;
     padding: 20px;
-    font-size: 30px !important;
+    font-size: clamp(18px, 2.5vw, 30px) !important;
     border: 2px solid #ddd;
     color: #171717;
     border-radius: 8px;
@@ -111,11 +111,11 @@ h1:hover i {
 .result-status {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    justify-content: space-evenly;
+    justify-items: center;
     gap: 15px;
     margin-bottom: 25px;
     text-align: center;
-    padding-left: 130px;
+    padding: 0;
 }
 
 .result-status h2.countdown {
@@ -412,8 +412,8 @@ button {
 }
 
 .random-para span {
-  white-space: pre;
-  font-size: 35px;
+    white-space: pre;
+    font-size: clamp(18px, 4vw, 35px);
 }
 
 .correct {
